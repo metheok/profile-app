@@ -10,6 +10,7 @@ const companySchema = new mongoose.Schema({
   description: String,
   website: String,
   employeeStrength: Number,
+
   contactDetails: [
     {
       title: String,
@@ -19,30 +20,23 @@ const companySchema = new mongoose.Schema({
       designation: String,
     },
   ],
-  companyInfo: {
-    type: String,
-    registrationNumber: String,
-    yearOfRegistration: Number,
-    gst: String,
-    lastYearTurnover: String,
-  },
-  registeredAddress: {
-    line1: String,
-    line2: String,
-    country: String,
-    city: String,
-    pin: String,
-    state: String,
-  },
+  //company
+  companyType: String,
+  companyRegistrationNumber: String,
+  companyYearOfRegistration: Number,
+  companyGst: String,
+  companyLastYearTurnover: String,
+  registeredAddressLine: String,
+
+  registeredAddressCountry: String,
+  registeredAddressCity: String,
+  registeredAddressPin: String,
+  registeredAddressState: String,
   offices: [
     {
       addressType: String,
-      line1: String,
-      line2: String,
-      country: String,
-      city: String,
+      address: String,
       pin: String,
-      state: String,
       number: String,
       email: String,
     },

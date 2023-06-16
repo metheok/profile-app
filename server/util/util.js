@@ -15,7 +15,7 @@ const comparePassword = (a, b) => {
 };
 
 const validateCompanyData = (data) => {
-  if (data.companyName && typeof data.companyName != "string") {
+  if (data && data.companyName && typeof data.companyName != "string") {
     return ["type error", null];
   }
   return [data, null];

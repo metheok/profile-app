@@ -10,8 +10,13 @@
     padding: 2rem 1.2rem;
     border: 1px solid gray;
     border-radius: 10px;
-    width: 300px;
+    width: 50%;
+    min-width: 400px;
+    max-width: 700px;
     background: #eee;
     
 
+}
+.error{
+    color: red;
 }

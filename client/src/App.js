@@ -1,27 +1,19 @@
 import React from "react";
 import "./App.css";
-import Signup from "./Components/Signup/signup";
-import Login from "./Components/Login/login";
-import useAuth from "./Hooks/useAuth";
+import Signup from "./Components/Signup/Signup";
+import Login from "./Components/Login/Login";
+import Dashboard from "./Components/Dashboard/Dashboard";
 
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./Contexts/AuthContext";
 
 function App() {
-  const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
   return (
     <Router>
       {" "}
       <div className="App ">
         <Routes>
-          <Route exact path="/" element={<div>home</div>}></Route>
+          <Route path="/dashboard" element={<Dashboard />}></Route>
           <Route exact path="/signup" element={<Signup />}></Route>
           <Route exact path="/login" element={<Login />}></Route>
         </Routes>
@@ -29,4 +21,7 @@ function App() {
     </Router>
   );
 }
-export default App;
+const appComponent = () => {
+  return <AuthProvider children={<App />}></AuthProvider>;
+};
+export default appComponent;

@@ -1,17 +1,41 @@
 import React from "react";
-import css from "./signup.module.css";
+import css from "./Signup.module.css";
 import { Link } from "react-router-dom";
+import UserGuard from "../Guard/UserGuard";
+import SignupForm from "../../Forms/SignupForm/SignupForm";
+import useAuth from "../../Hooks/useAuth";
+export default function Signup() {
+  const { register } = useAuth();
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
-export default function signup() {
+  const onSignup = async (data) => {
+    setLoading(true);
+
+    if (data && data.username && data.password && data.name) {
+      const err = await register(data);
+      if (err) {
+        console.log(err);
+        setError(err);
+      }
+      setLoading(false);
+    }
+  };
   return (
-    <div className={css.root}>
-      <div className={css.formContainer}>
-        <h4>Signup</h4>
+    <UserGuard>
+      <div className={css.root}>
+        <div className={css.formContainer}>
+          <h4>Sign Up</h4>
 
-        <div>
-          <Link to="/login">login</Link>
+          <SignupForm loading={loading} error={error} onSubmit={onSignup} />
+
+          <div>
+            <p>
+              <Link to="/login">Login</Link> if user already exists
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </UserGuard>
   );
 }

@@ -1,9 +1,11 @@
 import { createContext, useEffect, useReducer } from "react";
 import axios from "axios";
+import { createCompany, fetchCompany, updateCompany } from "../apiCalls";
 
 const initialState = {
   isAuthenticated: false,
   user: null,
+  company: null,
 };
 
 const authReducer = (state, { type, payload }) => {
@@ -46,35 +48,61 @@ export const AuthProvider = ({ children }) => {
 
   const getUserInfo = async () => {
     const token = localStorage.getItem("token");
-
     if (token) {
-      try {
-        const res = await axios.get(`/api/company`);
-        axios.defaults.headers.common["x-auth-token"] = token;
-
-        dispatch({
-          type: "LOGIN",
-          payload: {
-            user: res.data.user,
-            company: res.data.company,
-          },
-        });
-      } catch (err) {
-        console.error(err);
+      const [result, err] = await fetchCompany();
+      if (err) {
+        return console.error(err);
       }
+
+      dispatch({
+        type: "LOGIN",
+        payload: {
+          user: result.user,
+          company: result.company,
+        },
+      });
     } else {
-      delete axios.defaults.headers.common["x-auth-token"];
+      delete axios.defaults.headers.common["authorization"];
     }
   };
 
-  // verify user on reducer state init or changes
-  useEffect(async () => {
-    if (!state.user) {
+  const onCreateCompany = async (data) => {
+    const [result, err] = await createCompany(data);
+    if (err) {
+      return;
+    }
+
+    dispatch({
+      type: "UPDATE",
+      payload: {
+        company: result.company,
+      },
+    });
+  };
+  const onUpdateCompany = async (data) => {
+    const [result, err] = await updateCompany(data);
+    if (err) {
+      return console.error(err);
+    }
+
+    dispatch({
+      type: "UPDATE",
+      payload: {
+        company: result.company,
+      },
+    });
+  };
+  const runFuction = async (state) => {
+    if (!state?.user) {
       await getUserInfo();
     }
-  }, [state]);
+  };
+  // verify user on reducer state init or changes
+  useEffect(() => {
+    runFuction(state);
+  }, [state, runFuction]);
 
-  const logIn = async (username, password) => {
+  const logIn = async ({ username, password }) => {
     const config = {
       headers: { "Content-Type": "application/json" },
     };
@@ -84,27 +112,32 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post(`/api/auth/login`, body, config);
       localStorage.setItem("token", res.data.token);
       await getUserInfo();
+      return null;
     } catch (err) {
+      return err;
       console.error(err);
     }
   };
 
-  const register = async (email, password, name) => {
+  const register = async ({ username, password, name }) => {
     const config = {
       headers: { "Content-Type": "application/json" },
     };
-    const body = JSON.stringify({ email, password, name });
+    const body = JSON.stringify({ username, password, name });
 
     try {
       const res = await axios.post(`/api/auth/signup`, body, config);
       localStorage.setItem("token", res.data.token);
       await getUserInfo();
+      return null;
     } catch (err) {
+      return err;
+
       console.error(err);
     }
   };
 
-  const logOut = async (name, email, password) => {
+  const logOut = async (name, username, password) => {
     try {
       localStorage.removeItem("token");
       dispatch({
@@ -117,7 +150,16 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ ...state, logIn, register, logOut, getUserInfo, dispatch }}
+      value={{
+        ...state,
+        logIn,
+        register,
+        logOut,
+        getUserInfo,
+        onCreateCompany,
+        onUpdateCompany,
+        dispatch,
+      }}
     >
       {children}
     </AuthContext.Provider>
